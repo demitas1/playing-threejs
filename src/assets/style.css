@@ -9,3 +9,10 @@
   color: cyan;
   font-family: 'Orbitron';
 }
+
+.myButton {
+  position: absolute;
+  left: 10%;
+  top: 50%;
+  background: gray;
+}

@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  entry: path.resolve(__dirname, 'src/index.ts'),
+  entry: path.resolve(__dirname, 'src/app.ts'),
   module: {
     rules: [
       {
@@ -34,6 +34,9 @@ module.exports = {
     ],
   },
   resolve: {
+    alias: {
+      three: path.resolve('./node_modules/three')
+    },
     extensions: ['.tsx', '.ts', '.js', '.css'],
   },
   plugins: [
@@ -44,10 +47,14 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
+  devtool: 'inline-source-map',
   devServer: {
     port: 8080,
     static: path.resolve(__dirname, 'public'),
     hot: true,
+    headers: {
+      'Cache-Control': 'no-store',
+    },
     devMiddleware: {
       publicPath: "/",
     }

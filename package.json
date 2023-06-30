@@ -11,7 +11,9 @@
   "author": "demitas",
   "license": "MIT",
   "devDependencies": {
+    "@types/dat.gui": "^0.7.10",
     "@types/lodash": "^4.14.195",
+    "@types/three": "^0.152.1",
     "css-loader": "^6.8.1",
     "html-webpack-plugin": "^5.5.3",
     "style-loader": "^3.3.3",
@@ -22,6 +24,8 @@
     "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "dat.gui": "^0.7.9",
+    "lodash": "^4.17.21",
+    "three": "^0.154.0"
   }
 }

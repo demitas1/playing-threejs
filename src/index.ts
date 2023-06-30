@@ -6,21 +6,16 @@ import imageIcon from './assets/images/icon.jpg';
 console.log(style);
 console.log(imageIcon);
 
-function component() {
-  const element = document.createElement('div');
-
-  // test lodash
-  element.innerHTML = _.join(['Hello', 'webpack'], ' ');
-  element.classList.add(style.hello);
-
-  console.log('done.');
-
-  return element;
-}
-
-document.body.appendChild(component());
-
-const e = document.createElement('img');
-e.src = imageIcon;
+// appned <div>
+const e = document.createElement('div');
+// test lodash
+e.innerHTML = _.join(['Hello', 'webpack'], ' ');
+e.classList.add(style.hello);
 document.body.appendChild(e);
 
+// append <img>
+const img = document.createElement('img');
+img.src = imageIcon;
+document.body.appendChild(img);
+
+console.log('done.');
