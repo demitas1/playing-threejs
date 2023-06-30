@@ -1,0 +1,11 @@
+@font-face {
+  font-family: 'Orbitron';
+  src: url('./fonts/Orbitron-VariableFont_wght.ttf') format('ttf');
+  font-weight: 600;
+  font-style: normal;
+}
+
+.hello {
+  color: cyan;
+  font-family: 'Orbitron';
+}
