@@ -12,7 +12,15 @@
 
 .myButton {
   position: absolute;
-  left: 10%;
+  left: 20%;
   top: 50%;
   background: gray;
+}
+
+.myHUD {
+  position: absolute;
+  left: 20%;
+  top: 20%;
+  color: cyan;
+  font-family: 'Orbitron';
 }
