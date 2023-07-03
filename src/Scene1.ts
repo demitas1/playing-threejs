@@ -3,11 +3,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { GUI } from 'dat.gui';
 
+import { ISceneBase } from './ISceneBase';
+
 // styles for DOM elements
 import style from './assets/style.css';
 
 
-export class Scene1 extends THREE.Scene {
+export class Scene1 extends THREE.Scene implements ISceneBase {
   _camera: THREE.PerspectiveCamera;
   _renderer: THREE.WebGLRenderer;
   _controls: OrbitControls;
@@ -80,7 +82,14 @@ export class Scene1 extends THREE.Scene {
     button1.classList.add(style.myButton);
     button1.innerHTML = 'Click me!';
     button1.onclick = () => {
-      alert('Clicked.');
+      const ev = new CustomEvent(
+        'sceneEnd',
+        {
+          detail: '(end status)',
+        }
+      );
+      window.dispatchEvent(ev);
+      //alert('Clicked.');
     };
     document.body.appendChild(button1);
   }

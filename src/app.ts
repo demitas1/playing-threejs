@@ -1,9 +1,10 @@
+import { ISceneBase } from './ISceneBase';
 import { Scene1 } from './Scene1';
 
 
 export class App {
   _i: number;
-  _scene: Scene1;
+  _scene: ISceneBase;
 
   constructor() {
     ;
@@ -20,7 +21,17 @@ export class App {
       'resize',
       () => {
         this._scene.onResize();
-        this.render()
+        this.render();
+      },
+      false
+    );
+
+    // custom event test
+    // TODO: make scene transition mechanism.
+    window.addEventListener(
+      'sceneEnd',
+      (ev: CustomEvent) => {
+        console.log(`sceneEnd event with ${ev.detail}.`);
       },
       false
     );
