@@ -1,10 +1,14 @@
+import * as THREE from 'three';
 import { ISceneBase } from './ISceneBase';
 import { Scene1 } from './Scene1';
+import { Scene2 } from './Scene2';
 
 
 export class App {
-  _i: number;
+  _renderer: THREE.WebGLRenderer;
+
   _scene: ISceneBase;
+  _i: number;
 
   constructor() {
     ;
@@ -13,14 +17,20 @@ export class App {
   async init(): Promise<void> {
     this._i = 0;
 
+    // Renderer
+    this._renderer = new THREE.WebGLRenderer();
+    this._renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(this._renderer.domElement);
+
     // Scene
-    this._scene = new Scene1();
+    this._scene = new Scene1(this._renderer.domElement);
 
     // window resize
     window.addEventListener(
       'resize',
       () => {
         this._scene.onResize();
+        this._renderer.setSize(window.innerWidth, window.innerHeight);
         this.render();
       },
       false
@@ -32,6 +42,9 @@ export class App {
       'sceneEnd',
       (ev: CustomEvent) => {
         console.log(`sceneEnd event with ${ev.detail}.`);
+        // change to new Scene
+        this._scene.disposeScene();
+        this._scene = new Scene2(this._renderer.domElement);
       },
       false
     );
@@ -55,7 +68,10 @@ export class App {
 
   render() {
     // render current scene
-    this._scene.renderScene();
+    this._renderer.render(
+      this._scene.getScene(),
+      this._scene.getCamera()
+    );
   }
 }
 

@@ -9,7 +9,7 @@ import { ISceneBase } from './ISceneBase';
 import style from './assets/style.css';
 
 
-class Scene1 extends THREE.Scene implements ISceneBase {
+class Scene2 extends THREE.Scene implements ISceneBase {
   _camera: THREE.PerspectiveCamera;
   _controls: OrbitControls;
   _stats: Stats;
@@ -51,7 +51,7 @@ class Scene1 extends THREE.Scene implements ISceneBase {
 
     const geometry = new THREE.BoxGeometry();
     const material = new THREE.MeshBasicMaterial({
-      color: 0x00ff00,
+      color: 0x0000ff,
       wireframe: true,
     });
 
@@ -68,7 +68,7 @@ class Scene1 extends THREE.Scene implements ISceneBase {
     // TODO: load this from external html file.
     const htmlHUD = `
       <h1>heading level 1</h1>
-      <div>Scene 1</div>
+      <div>Scene 2</div>
     `;
     this._domUI = document.createElement('div');
     document.body.appendChild(this._domUI);
@@ -83,7 +83,7 @@ class Scene1 extends THREE.Scene implements ISceneBase {
       const ev = new CustomEvent(
         'sceneEnd',
         {
-          detail: '(end scene1)',
+          detail: '(end scene2)',
         }
       );
       window.dispatchEvent(ev);
@@ -116,4 +116,4 @@ class Scene1 extends THREE.Scene implements ISceneBase {
 }
 
 
-export { Scene1 };
+export { Scene2 };
