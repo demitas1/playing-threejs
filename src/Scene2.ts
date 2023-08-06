@@ -8,6 +8,9 @@ import { ISceneBase } from './ISceneBase';
 // styles for DOM elements
 import style from './assets/style.css';
 
+// HUD json file
+import hud from './assets/data/hud.json';
+
 
 class Scene2 extends THREE.Scene implements ISceneBase {
   _camera: THREE.PerspectiveCamera;
@@ -64,8 +67,12 @@ class Scene2 extends THREE.Scene implements ISceneBase {
     this._stats = new Stats();
     document.body.appendChild(this._stats.dom);
 
+    // json load test
+    console.log(hud);
+    // TODO: construct HUD UI based on hud.json
+
     // html load test
-    // TODO: load this from external html file.
+    // TODO: replace this with hud.json
     const htmlHUD = `
       <h1>heading level 1</h1>
       <div>Scene 2</div>
