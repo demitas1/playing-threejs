@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
 import { GUI } from 'dat.gui';
 
 import { ISceneBase } from './ISceneBase';
@@ -48,9 +49,31 @@ class Scene2 extends THREE.Scene implements ISceneBase {
     this._controls.addEventListener('change', () => {});
   }
 
-  initScene(domElement: HTMLElement) {
+  async initScene(domElement: HTMLElement) {
     this.initCamera();
     this.initControls(domElement);
+
+    // add Light
+    const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    this.add(directionalLight);
+
+    // fetch mesh file test
+    const res = await fetch('mesh/buttons-02.glb');
+    console.log(res);
+
+    // loader wrapper
+    const loadGLTF = (url: string) => {
+      return new Promise(resolve => {
+        new GLTFLoader().load(url, resolve);
+      });
+    };
+
+    // load gltf file
+    const url = 'mesh/buttons-02.glb';
+    const gltf = await loadGLTF(url);
+    const root = (<Record<string, any>>gltf).scene
+    this.add(root);
+    console.log(root);
 
     const geometry = new THREE.BoxGeometry();
     const material = new THREE.MeshBasicMaterial({

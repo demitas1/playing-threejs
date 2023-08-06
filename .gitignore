@@ -11,3 +11,12 @@ build/
 release/
 external/
 log/
+*.jpg
+*.png
+*.obj
+*.stl
+*.fbx
+*.gltf
+*.glb
+*.xcf
+*.blend*
