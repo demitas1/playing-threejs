@@ -19,6 +19,8 @@ class Scene2 extends THREE.Scene implements ISceneBase {
   _stats: Stats;
   _domUI: HTMLElement;
 
+  _objButton: THREE.Object3D;
+
   constructor(domElement: HTMLElement) {
     super();
 
@@ -47,6 +49,31 @@ class Scene2 extends THREE.Scene implements ISceneBase {
     );
     // on 'change' do nothing. rendering is done by animation.
     this._controls.addEventListener('change', () => {});
+
+    // keyDown / keyUp events
+    window.addEventListener(
+      'keydown',
+      (ev: KeyboardEvent) => {
+        if (ev.key === '2') {
+          console.log('key down');
+          if (this._objButton) {
+            this._objButton.position.y = - 0.1;
+          }
+        }
+      }
+    );
+
+    window.addEventListener(
+      'keyup',
+      (ev: KeyboardEvent) => {
+        if (ev.key === '2') {
+          console.log('key up');
+          if (this._objButton) {
+            this._objButton.position.y = 0.0;
+          }
+        }
+      }
+    );
   }
 
   async initScene(domElement: HTMLElement) {
@@ -72,17 +99,22 @@ class Scene2 extends THREE.Scene implements ISceneBase {
     const url = 'mesh/buttons-02.glb';
     const gltf = await loadGLTF(url);
     const root = (<Record<string, any>>gltf).scene
-    this.add(root);
-    console.log(root);
 
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({
-      color: 0x0000ff,
-      wireframe: true,
+    // find child mesh in the gltf
+    let i = 0;
+    root.traverse((child: any) => {
+      const nodeType = (<THREE.Object3D>child).type;
+      const nodeName = (<THREE.Object3D>child).name;
+      console.log(`node ${i}: ${nodeType} ${nodeName}`);
+      i += 1;
+
+      if (nodeName === 'button-00') {
+        this._objButton = <THREE.Object3D>child;
+      }
     });
 
-    const cube = new THREE.Mesh(geometry, material);
-    this.add(cube);
+    this.add(root);
+    console.log(root);
   }
 
   initUI() {
