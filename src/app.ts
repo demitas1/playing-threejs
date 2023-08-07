@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { ISceneBase } from './ISceneBase';
 import { Scene1 } from './Scene1';
 import { Scene2 } from './Scene2';
+import { Scene3 } from './Scene3';
 
 
 export class App {
@@ -42,9 +43,19 @@ export class App {
       'sceneEnd',
       (ev: CustomEvent) => {
         console.log(`sceneEnd event with ${ev.detail}.`);
-        // change to new Scene
-        this._scene.disposeScene();
-        this._scene = new Scene2(this._renderer.domElement);
+        if (ev.detail === '(end scene1)') {
+          // change to new Scene2
+          this._scene.disposeScene();
+          this._scene = new Scene2(this._renderer.domElement);
+        } else if (ev.detail === '(end scene2)') {
+          // change to new Scene3
+          this._scene.disposeScene();
+          this._scene = new Scene3(this._renderer.domElement);
+        } else if (ev.detail === '(end scene3)') {
+          // change to new Scene1
+          this._scene.disposeScene();
+          this._scene = new Scene1(this._renderer.domElement);
+        }
       },
       false
     );
