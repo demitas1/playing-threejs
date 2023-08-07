@@ -97,8 +97,12 @@ class Scene2 extends THREE.Scene implements ISceneBase {
 
     // load gltf file
     const url = 'mesh/buttons-02.glb';
-    const gltf = await loadGLTF(url);
-    const root = (<Record<string, any>>gltf).scene
+    const gltf: Record<string, any> = await loadGLTF(url);
+    const root: THREE.Object3D = gltf.scene;
+    const animations: Array<THREE.AnimationClip> = gltf.animations;
+
+    // check animation content
+    console.log(animations);
 
     // find child mesh in the gltf
     let i = 0;
@@ -113,6 +117,7 @@ class Scene2 extends THREE.Scene implements ISceneBase {
       }
     });
 
+    // attach the gltf models to the scene
     this.add(root);
     console.log(root);
   }
