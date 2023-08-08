@@ -90,7 +90,7 @@ class Scene2 extends THREE.Scene implements ISceneBase {
 
     // loader wrapper
     const loadGLTF = (url: string) => {
-      return new Promise(resolve => {
+      return new Promise<Record<string, any>>(resolve => {
         new GLTFLoader().load(url, resolve);
       });
     };
@@ -134,8 +134,8 @@ class Scene2 extends THREE.Scene implements ISceneBase {
     // html load test
     // TODO: replace this with hud.json
     const htmlHUD = `
-      <h1>heading level 1</h1>
-      <div>Scene 2</div>
+      <h1>Scene 2</h1>
+      <div>Load mesh from glTF file</div>
     `;
     this._domUI = document.createElement('div');
     document.body.appendChild(this._domUI);

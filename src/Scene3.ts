@@ -8,6 +8,17 @@ import { ISceneBase } from './ISceneBase';
 // styles for DOM elements
 import style from './assets/style.css';
 
+const vshader = /* glsl */`
+void main() {
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position * 0.5, 1.0);
+}
+`
+
+const fshader = `
+void main() {
+  gl_FragColor = vec4(0.1, 0.2, 0.3, 1.0);
+}
+`
 
 class Scene3 extends THREE.Scene implements ISceneBase {
   _camera: THREE.OrthographicCamera;
@@ -44,17 +55,6 @@ class Scene3 extends THREE.Scene implements ISceneBase {
     this.initCamera();
     this.initControls(domElement);
 
-    const vshader = `
-    void main() {
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position * 0.5, 1.0);
-    }
-    `
-
-    const fshader = `
-    void main() {
-    gl_FragColor = vec4(0.1, 0.2, 0.3, 1.0);
-    }
-    `
     const geometry = new THREE.PlaneGeometry(2, 2);
     const material = new THREE.ShaderMaterial({
       vertexShader: vshader,
@@ -73,8 +73,8 @@ class Scene3 extends THREE.Scene implements ISceneBase {
     // html load test
     // TODO: load this from external html file.
     const htmlHUD = `
-      <h1>heading level 1</h1>
-      <div>Scene 1</div>
+      <h1>Scene 3</h1>
+      <div>Shader language</div>
     `;
     this._domUI = document.createElement('div');
     document.body.appendChild(this._domUI);
@@ -101,18 +101,18 @@ class Scene3 extends THREE.Scene implements ISceneBase {
     const aspectRatio = window.innerWidth/window.innerHeight;
 
     let width, height;
-    if (aspectRatio>=1){
+    if (aspectRatio >= 1){
       width = 1;
-      height = (window.innerHeight/window.innerWidth) * width;
-    }else{
+      height = (window.innerHeight / window.innerWidth) * width;
+    } else {
       width = aspectRatio;
       height = 1;
     }
 
-    this._camera.left = -width;
+    this._camera.left = - width;
     this._camera.right = width;
     this._camera.top = height;
-    this._camera.bottom = -height;
+    this._camera.bottom = - height;
     this._camera.updateProjectionMatrix();
   }
 

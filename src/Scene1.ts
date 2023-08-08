@@ -33,7 +33,9 @@ class Scene1 extends THREE.Scene implements ISceneBase {
       0.1,
       1000
     );
-    this._camera.position.z = 2;
+    this._camera.position.x = 4.0;
+    this._camera.position.z = 5.0;
+    this._camera.position.y = 3.0;
   }
 
   initControls(domElement: HTMLElement) {
@@ -45,14 +47,121 @@ class Scene1 extends THREE.Scene implements ISceneBase {
     this._controls.addEventListener('change', () => {});
   }
 
-  initScene(domElement: HTMLElement) {
+  async initScene(domElement: HTMLElement) {
     this.initCamera();
     this.initControls(domElement);
 
-    const geometry = new THREE.BoxGeometry();
+    // add Light
+    const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    this.add(directionalLight);
+
+    // fetch texture file test
+    const res = await fetch('texture/color_grid.png');
+    console.log(res);
+
+    // loader wrapper
+    const loadTexture = (url: string) => {
+      return new Promise<THREE.Texture>((resolve, reject) => {
+        new THREE.TextureLoader().load(
+          url,
+          resolve,
+          undefined,  // onProgress callback (not suppoted)
+          reject);
+      });;
+    }
+
+    // load texture
+    let textureColorGrid;
+    try {
+      textureColorGrid = await loadTexture('texture/color_grid.png');
+    } catch (err) {
+      console.error('error on load texture');
+      console.error(err);
+    }
+    console.log(textureColorGrid);
+
+    // create a simple qube.
+    const geometry = new THREE.BufferGeometry();
+    const v = new Float32Array([
+       1.0, -1.0,  1.0,
+      -1.0, -1.0,  1.0,
+      -1.0,  1.0,  1.0,
+       1.0,  1.0,  1.0,
+       1.0,  1.0, -1.0,
+      -1.0,  1.0, -1.0,
+      -1.0, -1.0, -1.0,
+       1.0, -1.0, -1.0,
+       1.0,  1.0, -1.0,
+       1.0, -1.0, -1.0,
+       1.0, -1.0,  1.0,
+       1.0,  1.0,  1.0,
+      -1.0,  1.0,  1.0,
+      -1.0, -1.0,  1.0,
+      -1.0, -1.0, -1.0,
+      -1.0,  1.0, -1.0,
+      -1.0,  1.0,  1.0,
+      -1.0,  1.0, -1.0,
+       1.0,  1.0, -1.0,
+       1.0,  1.0,  1.0,
+       1.0, -1.0,  1.0,
+       1.0, -1.0, -1.0,
+      -1.0, -1.0, -1.0,
+      -1.0, -1.0,  1.0,
+    ]);
+
+    const iv: Array<number> = [
+      0, 2, 1,
+      0, 3, 2,
+      4, 6, 5,
+      4, 7, 6,
+      8, 10, 9,
+      8, 11, 10,
+      12, 14, 13,
+      12, 15, 14,
+      16, 18, 17,
+      16, 19, 18,
+      20, 22, 21,
+      20, 23, 22,
+    ];
+
+    const uv = new Float32Array([
+      0.375, 0.75,
+      0.375, 1.0,
+      0.625, 1.0,
+      0.625, 0.75,
+
+      0.625, 0.5,
+      0.625, 0.25,
+      0.375, 0.25,
+      0.375, 0.5,
+
+      0.625, 0.5,
+      0.375, 0.5,
+      0.375, 0.75,
+      0.625, 0.75,
+
+      0.625, 0.0,
+      0.375, 0.0,
+      0.375, 0.25,
+      0.625, 0.25,
+
+      0.875, 0.75,
+      0.875, 0.5,
+      0.625, 0.5,
+      0.625, 0.75,
+
+      0.375, 0.75,
+      0.375, 0.5,
+      0.125, 0.5,
+      0.125, 0.75,
+    ]);
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(v, 3));
+    geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    geometry.setIndex(iv);
+
     const material = new THREE.MeshBasicMaterial({
-      color: 0x00ff00,
-      wireframe: true,
+      map: textureColorGrid,
     });
 
     const cube = new THREE.Mesh(geometry, material);
@@ -67,8 +176,8 @@ class Scene1 extends THREE.Scene implements ISceneBase {
     // html load test
     // TODO: load this from external html file.
     const htmlHUD = `
-      <h1>heading level 1</h1>
-      <div>Scene 1</div>
+      <h1>Scene 1</h1>
+      <div>Simple cube</div>
     `;
     this._domUI = document.createElement('div');
     document.body.appendChild(this._domUI);
