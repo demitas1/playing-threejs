@@ -1,6 +1,8 @@
 @font-face {
   font-family: 'Orbitron';
-  src: url('./fonts/Orbitron-VariableFont_wght.ttf') format('ttf');
+  src: url('./fonts/Orbitron-Regular.woff2') format('woff2'),
+       url('./fonts/Orbitron-Regular.woff') format('woff'),
+       url('./fonts/Orbitron-VariableFont_wght.ttf') format('ttf');
   font-weight: 600;
   font-style: normal;
 }

@@ -20,6 +20,8 @@ class Scene4 extends THREE.Scene implements ISceneBase {
   _context: CanvasRenderingContext2D;
   _tick: number;
 
+  _image1: HTMLImageElement;
+
   constructor(domElement: HTMLElement) {
     super();
 
@@ -62,23 +64,6 @@ class Scene4 extends THREE.Scene implements ISceneBase {
     const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
     this.add(directionalLight);
 
-    // fetch test
-    //const _ = await fetch("fonts/Orbitron-VariableFont_wght.ttf");
-    //console.log(_);
-
-    const font = await new FontFace(
-      'Orbitron', 
-      "url('fonts/Orbitron-VariableFont_wght.ttf')")
-      .load();
-    console.log(font);
-
-    // prepare 2d canvas
-    this._canvas = document.createElement("canvas");
-    this._canvas.width = 1024;
-    this._canvas.height = 1024;
-    this._context = this._canvas.getContext("2d");
-    const textureCanvas = new THREE.Texture(this._canvas);
-
     // create a simple square plane.
     const geometry = new THREE.BufferGeometry();
     const v = new Float32Array([
@@ -103,6 +88,32 @@ class Scene4 extends THREE.Scene implements ISceneBase {
     geometry.setAttribute('position', new THREE.BufferAttribute(v, 3));
     geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
     geometry.setIndex(iv);
+
+    // preload custom font
+    const font = await new FontFace(
+      'Orbitron',
+      "url('./fonts/Orbitron-Regular.woff2') format('woff2')")
+      .load();
+    console.log(font);
+
+    // image wrapper to load by url
+    // TODO: test image by svg
+    const loadImage = (url: string) => {
+      return new Promise<HTMLImageElement>((resolve) => {
+        const _img = new Image();
+        _img.onload = () => { resolve(_img); };
+        _img.src = url;
+      })
+    };
+    // preload image
+    this._image1 = await loadImage('images/icon.jpg');
+
+    // prepare 2d canvas
+    this._canvas = document.createElement("canvas");
+    this._canvas.width = 1024;
+    this._canvas.height = 1024;
+    this._context = this._canvas.getContext("2d");
+    const textureCanvas = new THREE.Texture(this._canvas);
 
     this._material = new THREE.MeshBasicMaterial({
       map: textureCanvas,
@@ -161,33 +172,41 @@ class Scene4 extends THREE.Scene implements ISceneBase {
 
     // texture as canvas animation
     if (this._context && this._material) {
-
-      // TODO: copy bitmap
+      const w = this._canvas.width;
+      const h = this._canvas.height;
       const p = (this._tick % n_frames) / n_frames;
+
+      // clear canvas by filled rectangle
       this._context.fillStyle = '#020208';
-      this._context.fillRect(
-        0, 0,
-        this._canvas.width,
-        this._canvas.height
-      );
+      this._context.fillRect(0, 0, w, h);
+
+      // fill rectangle
       this._context.fillStyle = '#404040';
       this._context.fillRect(
-        this._canvas.width * 0.9,
-        this._canvas.height * 0.9,
-        this._canvas.width * 0.1,
-        this._canvas.height * 0.1
+        w * 0.9, h * 0.9,
+        w * 0.1, h * 0.1
       );
 
-      // draw Text with preloaded font
+      // draw text with preloaded font family
       // specify font by 'weight, size, family'
-      const fontSize = Math.floor(this._canvas.height * 0.1);
+      // TODO: animation text
+      const fontSize = Math.floor(w * 0.1);
       this._context.font = `400 ${fontSize}px Orbitron`;
       this._context.fillStyle = '#407f40';
       this._context.fillText(
         'A quick brown fox.',
-        this._canvas.width * 0.0,
-        this._canvas.width * 0.1);
+        w * 0.0,
+        h * 0.1
+      );
 
+      // draw image bitmap
+      this._context.drawImage(
+        this._image1,
+        w * 0.0,
+        h * 0.8
+      );
+
+      // notify: the texture material is updated
       this._material.map.needsUpdate = true;
     }
   }

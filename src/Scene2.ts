@@ -85,8 +85,8 @@ class Scene2 extends THREE.Scene implements ISceneBase {
     this.add(directionalLight);
 
     // fetch mesh file test
-    const res = await fetch('mesh/buttons-02.glb');
-    console.log(res);
+    //const res = await fetch('mesh/buttons-02.glb');
+    //console.log(res);
 
     // loader wrapper
     const loadGLTF = (url: string) => {
