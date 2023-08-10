@@ -7,10 +7,10 @@ import { GUI } from 'dat.gui';
 import { ISceneBase } from './ISceneBase';
 
 // styles for DOM elements
-import style from './assets/style.css';
+import style from '../public/style.css';
 
 // HUD json file
-import hud from './assets/data/hud.json';
+import hud from '../public/data/hud.json';
 
 
 class Scene2 extends THREE.Scene implements ISceneBase {

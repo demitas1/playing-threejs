@@ -3,6 +3,7 @@ import { ISceneBase } from './ISceneBase';
 import { Scene1 } from './Scene1';
 import { Scene2 } from './Scene2';
 import { Scene3 } from './Scene3';
+import { Scene4 } from './Scene4';
 
 
 export class App {
@@ -23,8 +24,9 @@ export class App {
     this._renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(this._renderer.domElement);
 
-    // Scene
-    this._scene = new Scene1(this._renderer.domElement);
+    // starting Scene
+    //this._scene = new Scene1(this._renderer.domElement);
+    this._scene = new Scene4(this._renderer.domElement);
 
     // window resize
     window.addEventListener(
@@ -38,7 +40,7 @@ export class App {
     );
 
     // custom event test
-    // TODO: make scene transition mechanism.
+    // TODO: make better scene transition mechanism.
     window.addEventListener(
       'sceneEnd',
       (ev: CustomEvent) => {
@@ -52,6 +54,10 @@ export class App {
           this._scene.disposeScene();
           this._scene = new Scene3(this._renderer.domElement);
         } else if (ev.detail === '(end scene3)') {
+          // change to new Scene4
+          this._scene.disposeScene();
+          this._scene = new Scene4(this._renderer.domElement);
+        } else if (ev.detail === '(end scene4)') {
           // change to new Scene1
           this._scene.disposeScene();
           this._scene = new Scene1(this._renderer.domElement);

@@ -6,7 +6,7 @@ import { GUI } from 'dat.gui';
 import { ISceneBase } from './ISceneBase';
 
 // styles for DOM elements
-import style from './assets/style.css';
+import style from '../public/style.css';
 
 const vshader = /* glsl */`
 void main() {
