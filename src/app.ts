@@ -25,8 +25,8 @@ export class App {
     document.body.appendChild(this._renderer.domElement);
 
     // starting Scene
-    //this._scene = new Scene1(this._renderer.domElement);
-    this._scene = new Scene4(this._renderer.domElement);
+    this._scene = new Scene1(this._renderer.domElement);
+    //this._scene = new Scene4(this._renderer.domElement);
 
     // window resize
     window.addEventListener(

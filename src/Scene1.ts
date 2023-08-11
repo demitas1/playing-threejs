@@ -5,8 +5,19 @@ import { GUI } from 'dat.gui';
 
 import { ISceneBase } from './ISceneBase';
 
-// styles for DOM elements
 import style from '../public/style.css';
+
+
+// loader wrapper
+const loadTexture = (url: string) => {
+  return new Promise<THREE.Texture>((resolve, reject) => {
+    new THREE.TextureLoader().load(
+      url,
+      resolve,
+      undefined,  // onProgress callback (not suppoted)
+      reject);
+  });
+}
 
 
 class Scene1 extends THREE.Scene implements ISceneBase {
@@ -18,33 +29,8 @@ class Scene1 extends THREE.Scene implements ISceneBase {
   constructor(domElement: HTMLElement) {
     super();
 
-    this.initRenderer();
-    this.initScene(domElement);
     this.initUI();
-  }
-
-  initRenderer() {
-  }
-
-  initCamera() {
-    this._camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-    this._camera.position.x = 4.0;
-    this._camera.position.z = 5.0;
-    this._camera.position.y = 3.0;
-  }
-
-  initControls(domElement: HTMLElement) {
-    this._controls = new OrbitControls(
-      this._camera,
-      domElement
-    );
-    // on 'change' do nothing. rendering is done by animation.
-    this._controls.addEventListener('change', () => {});
+    this.initScene(domElement);
   }
 
   async initScene(domElement: HTMLElement) {
@@ -55,17 +41,6 @@ class Scene1 extends THREE.Scene implements ISceneBase {
     const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
     this.add(directionalLight);
 
-    // loader wrapper
-    const loadTexture = (url: string) => {
-      return new Promise<THREE.Texture>((resolve, reject) => {
-        new THREE.TextureLoader().load(
-          url,
-          resolve,
-          undefined,  // onProgress callback (not suppoted)
-          reject);
-      });
-    }
-
     // load texture
     let textureColorGrid;
     try {
@@ -74,7 +49,7 @@ class Scene1 extends THREE.Scene implements ISceneBase {
       console.error('error on load texture');
       console.error(err);
     }
-    console.log(textureColorGrid);
+    //console.log(textureColorGrid);
 
     // create a simple qube.
     const geometry = new THREE.BufferGeometry();
@@ -164,25 +139,47 @@ class Scene1 extends THREE.Scene implements ISceneBase {
     this.add(cube);
   }
 
-  initUI() {
+  initCamera() {
+    this._camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    this._camera.position.x = 4.0;
+    this._camera.position.z = 5.0;
+    this._camera.position.y = 3.0;
+  }
+
+  initControls(domElement: HTMLElement) {
+    this._controls = new OrbitControls(
+      this._camera,
+      domElement
+    );
+    // on 'change' do nothing. rendering is done by animation.
+    this._controls.addEventListener('change', () => {});
+  }
+
+  async initUI() {
+    const _style = style;  // reference to css to access hashed class names
+    console.log(`style: ${_style.hello}`);
+
     // Stats
     this._stats = new Stats();
     document.body.appendChild(this._stats.dom);
 
-    // html load test
-    // TODO: load this from external html file.
-    const htmlHUD = `
-      <h1>Scene 1</h1>
-      <div>Simple cube</div>
-    `;
+    // html load external html file
+    const r = await fetch('data/hud.html');
+    const htmlHUD = await r.text();
+
     this._domUI = document.createElement('div');
     document.body.appendChild(this._domUI);
-    this._domUI.classList.add(style.myHUD);
+    this._domUI.classList.add('myHUD');
     this._domUI.insertAdjacentHTML('beforeend', htmlHUD);
 
-    // normal DOM button
-    const button1 = document.createElement('BUTTON');
-    button1.classList.add(style.myButton);
+    // add DOM button to UI
+    const button1 = document.createElement('div');
+    button1.classList.add('myButton');
     button1.innerHTML = 'Click me!';
     button1.onclick = () => {
       const ev = new CustomEvent(

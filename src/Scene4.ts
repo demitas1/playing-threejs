@@ -5,8 +5,18 @@ import { GUI } from 'dat.gui';
 
 import { ISceneBase } from './ISceneBase';
 
-// styles for DOM elements
 import style from '../public/style.css';
+
+
+// image wrapper to load by url
+// TODO: test image by svg
+const loadImage = (url: string) => {
+  return new Promise<HTMLImageElement>((resolve) => {
+    const _img = new Image();
+    _img.onload = () => { resolve(_img); };
+    _img.src = url;
+  })
+};
 
 
 class Scene4 extends THREE.Scene implements ISceneBase {
@@ -25,14 +35,10 @@ class Scene4 extends THREE.Scene implements ISceneBase {
   constructor(domElement: HTMLElement) {
     super();
 
-    this.initRenderer();
     this.initScene(domElement);
     this.initUI();
 
     this._tick = 0;
-  }
-
-  initRenderer() {
   }
 
   initCamera() {
@@ -92,19 +98,10 @@ class Scene4 extends THREE.Scene implements ISceneBase {
     // preload custom font
     const font = await new FontFace(
       'Orbitron',
-      "url('./fonts/Orbitron-Regular.woff2') format('woff2')")
+      "url('./fonts/Orbitron-VariableFont_wght.woff') format('woff')")
       .load();
     console.log(font);
 
-    // image wrapper to load by url
-    // TODO: test image by svg
-    const loadImage = (url: string) => {
-      return new Promise<HTMLImageElement>((resolve) => {
-        const _img = new Image();
-        _img.onload = () => { resolve(_img); };
-        _img.src = url;
-      })
-    };
     // preload image
     this._image1 = await loadImage('images/icon.jpg');
 
@@ -124,24 +121,26 @@ class Scene4 extends THREE.Scene implements ISceneBase {
   }
 
   initUI() {
+    const _style = style;  // reference to css to access hashed class names
+    console.log(`style: ${_style.hello}`);
+
     // Stats
     this._stats = new Stats();
     document.body.appendChild(this._stats.dom);
 
-    // html load test
-    // TODO: load this from external html file.
+    // build UI html
     const htmlHUD = `
       <h1>Scene 4</h1>
       <div>Canvas texture animation</div>
     `;
     this._domUI = document.createElement('div');
     document.body.appendChild(this._domUI);
-    this._domUI.classList.add(style.myHUD);
+    this._domUI.classList.add('myHUD');
     this._domUI.insertAdjacentHTML('beforeend', htmlHUD);
 
     // normal DOM button
-    const button1 = document.createElement('BUTTON');
-    button1.classList.add(style.myButton);
+    const button1 = document.createElement('div');
+    button1.classList.add('myButton');
     button1.innerHTML = 'Click me!';
     button1.onclick = () => {
       const ev = new CustomEvent(

@@ -6,11 +6,15 @@ import { GUI } from 'dat.gui';
 
 import { ISceneBase } from './ISceneBase';
 
-// styles for DOM elements
 import style from '../public/style.css';
 
-// HUD json file
-import hud from '../public/data/hud.json';
+
+// loader wrapper
+const loadGLTF = (url: string) => {
+  return new Promise<Record<string, any>>(resolve => {
+    new GLTFLoader().load(url, resolve);
+  });
+};
 
 
 class Scene2 extends THREE.Scene implements ISceneBase {
@@ -24,12 +28,47 @@ class Scene2 extends THREE.Scene implements ISceneBase {
   constructor(domElement: HTMLElement) {
     super();
 
-    this.initRenderer();
-    this.initScene(domElement);
     this.initUI();
+    this.initScene(domElement);
   }
 
-  initRenderer() {
+  async initScene(domElement: HTMLElement) {
+    this.initCamera();
+    this.initControls(domElement);
+
+    // add Light
+    const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    this.add(directionalLight);
+
+    // fetch mesh file test
+    //const res = await fetch('mesh/buttons-02.glb');
+    //console.log(res);
+
+    // load gltf file
+    const url = 'mesh/buttons-02.glb';
+    const gltf: Record<string, any> = await loadGLTF(url);
+    const root: THREE.Object3D = gltf.scene;
+    const animations: Array<THREE.AnimationClip> = gltf.animations;
+
+    // check animation content
+    console.log(animations);
+
+    // find child mesh in the gltf
+    let i = 0;
+    root.traverse((child: any) => {
+      const nodeType = (<THREE.Object3D>child).type;
+      const nodeName = (<THREE.Object3D>child).name;
+      console.log(`node ${i}: ${nodeType} ${nodeName}`);
+      i += 1;
+
+      if (nodeName === 'button-00') {
+        this._objButton = <THREE.Object3D>child;
+      }
+    });
+
+    // attach the gltf models to the scene
+    this.add(root);
+    console.log(root);
   }
 
   initCamera() {
@@ -76,75 +115,27 @@ class Scene2 extends THREE.Scene implements ISceneBase {
     );
   }
 
-  async initScene(domElement: HTMLElement) {
-    this.initCamera();
-    this.initControls(domElement);
-
-    // add Light
-    const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
-    this.add(directionalLight);
-
-    // fetch mesh file test
-    //const res = await fetch('mesh/buttons-02.glb');
-    //console.log(res);
-
-    // loader wrapper
-    const loadGLTF = (url: string) => {
-      return new Promise<Record<string, any>>(resolve => {
-        new GLTFLoader().load(url, resolve);
-      });
-    };
-
-    // load gltf file
-    const url = 'mesh/buttons-02.glb';
-    const gltf: Record<string, any> = await loadGLTF(url);
-    const root: THREE.Object3D = gltf.scene;
-    const animations: Array<THREE.AnimationClip> = gltf.animations;
-
-    // check animation content
-    console.log(animations);
-
-    // find child mesh in the gltf
-    let i = 0;
-    root.traverse((child: any) => {
-      const nodeType = (<THREE.Object3D>child).type;
-      const nodeName = (<THREE.Object3D>child).name;
-      console.log(`node ${i}: ${nodeType} ${nodeName}`);
-      i += 1;
-
-      if (nodeName === 'button-00') {
-        this._objButton = <THREE.Object3D>child;
-      }
-    });
-
-    // attach the gltf models to the scene
-    this.add(root);
-    console.log(root);
-  }
-
   initUI() {
+    const _style = style;  // reference to css to access hashed class names
+    console.log(`style: ${_style.hello}`);
+
     // Stats
     this._stats = new Stats();
     document.body.appendChild(this._stats.dom);
 
-    // json load test
-    console.log(hud);
-    // TODO: construct HUD UI based on hud.json
-
-    // html load test
-    // TODO: replace this with hud.json
+    // build UI html
     const htmlHUD = `
       <h1>Scene 2</h1>
       <div>Load mesh from glTF file</div>
     `;
     this._domUI = document.createElement('div');
     document.body.appendChild(this._domUI);
-    this._domUI.classList.add(style.myHUD);
+    this._domUI.classList.add('myHUD');
     this._domUI.insertAdjacentHTML('beforeend', htmlHUD);
 
-    // normal DOM button
-    const button1 = document.createElement('BUTTON');
-    button1.classList.add(style.myButton);
+    // add DOM button
+    const button1 = document.createElement('div');
+    button1.classList.add('myButton');
     button1.innerHTML = 'Click me!';
     button1.onclick = () => {
       const ev = new CustomEvent(

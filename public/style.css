@@ -1,28 +1,36 @@
 @font-face {
   font-family: 'Orbitron';
-  src: url('./fonts/Orbitron-Regular.woff2') format('woff2'),
-       url('./fonts/Orbitron-Regular.woff') format('woff'),
+  src: url('./fonts/Orbitron-VariableFont_wght.woff') format('woff'),
        url('./fonts/Orbitron-VariableFont_wght.ttf') format('ttf');
   font-weight: 600;
   font-style: normal;
 }
 
 .hello {
+  color: orange;
+  font-family: 'Orbitron';
+}
+
+:global(.myHUD) {
+  position: absolute;
+  pointer-events: none;
+  left: 5%;
+  top: 5%;
+  width: 90%;
+  height: 90%;
   color: cyan;
   font-family: 'Orbitron';
 }
 
-.myButton {
+:global(.myButton) {
   position: absolute;
-  left: 20%;
-  top: 50%;
-  background: gray;
-}
-
-.myHUD {
-  position: absolute;
-  left: 20%;
-  top: 20%;
-  color: cyan;
+  pointer-events: auto;
+  left: 10%;
+  top: 90%;
+  background: #222200;
   font-family: 'Orbitron';
+}
+:global(.myButton:hover) {
+  cursor: pointer;
+  color: orange;
 }
