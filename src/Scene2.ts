@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
-import { GUI } from 'dat.gui';
 
 import { ISceneBase } from './ISceneBase';
 
@@ -39,10 +38,6 @@ class Scene2 extends THREE.Scene implements ISceneBase {
     // add Light
     const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
     this.add(directionalLight);
-
-    // fetch mesh file test
-    //const res = await fetch('mesh/buttons-02.glb');
-    //console.log(res);
 
     // load gltf file
     const url = 'mesh/buttons-02.glb';

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
-import { GUI } from 'dat.gui';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
 
 import { ISceneBase } from './ISceneBase';
 
@@ -16,6 +16,14 @@ const loadImage = (url: string) => {
     _img.onload = () => { resolve(_img); };
     _img.src = url;
   })
+};
+
+
+// loader wrapper
+const loadGLTF = (url: string) => {
+  return new Promise<Record<string, any>>(resolve => {
+    new GLTFLoader().load(url, resolve);
+  });
 };
 
 
@@ -70,31 +78,6 @@ class Scene4 extends THREE.Scene implements ISceneBase {
     const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
     this.add(directionalLight);
 
-    // create a simple square plane.
-    const geometry = new THREE.BufferGeometry();
-    const v = new Float32Array([
-      -1.0, -1.0,  1.0,
-       1.0, -1.0,  1.0,
-      -1.0,  1.0,  1.0,
-       1.0,  1.0,  1.0,
-    ]);
-
-    const iv: Array<number> = [
-      1, 2, 0,
-      1, 3, 2,
-    ];
-
-    const uv = new Float32Array([
-      0.0, 0.0,
-      1.0, 0.0,
-      0.0, 1.0,
-      1.0, 1.0,
-    ]);
-
-    geometry.setAttribute('position', new THREE.BufferAttribute(v, 3));
-    geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
-    geometry.setIndex(iv);
-
     // preload custom font
     const font = await new FontFace(
       'Orbitron',
@@ -113,11 +96,38 @@ class Scene4 extends THREE.Scene implements ISceneBase {
     const textureCanvas = new THREE.Texture(this._canvas);
 
     this._material = new THREE.MeshBasicMaterial({
+      name: 'screenCanvas',
       map: textureCanvas,
     });
 
-    const mesh = new THREE.Mesh(geometry, this._material);
-    this.add(mesh);
+    // load gltf file
+    const url = 'mesh/monitor-01.glb';
+    //const url = 'mesh/texture-test.glb';
+    const gltf: Record<string, any> = await loadGLTF(url);
+    const root: THREE.Object3D = gltf.scene;
+    const animations: Array<THREE.AnimationClip> = gltf.animations;
+
+    // check animation content
+    console.log(animations);
+
+    // find child mesh in the gltf
+    let i = 0;
+    root.traverse((child: any) => {
+      const nodeType = (<THREE.Object3D>child).type;
+      const nodeName = (<THREE.Object3D>child).name;
+
+      console.log(`node ${i}: ${nodeType} ${nodeName}`);
+      if (nodeType === 'Mesh' && nodeName === 'screen') {
+        const _placeHolder = child.material;
+        child.material = this._material;
+        _placeHolder.dispose();
+      }
+      i += 1;
+    });
+
+    // attach the gltf models to the scene
+    this.add(root);
+    console.log(root);
   }
 
   initUI() {
@@ -171,6 +181,10 @@ class Scene4 extends THREE.Scene implements ISceneBase {
 
     // texture as canvas animation
     if (this._context && this._material) {
+      // Note:
+      // canvas 2d has +Y down coordinate while blender UV has +Y up.
+      // take care of uv coordinates of the plane to draw on.
+
       const w = this._canvas.width;
       const h = this._canvas.height;
       const p = (this._tick % n_frames) / n_frames;
@@ -179,12 +193,9 @@ class Scene4 extends THREE.Scene implements ISceneBase {
       this._context.fillStyle = '#020208';
       this._context.fillRect(0, 0, w, h);
 
-      // fill rectangle
+      // fill rectangle test
       this._context.fillStyle = '#404040';
-      this._context.fillRect(
-        w * 0.9, h * 0.9,
-        w * 0.1, h * 0.1
-      );
+      this._context.fillRect(0, 0, w * p, h * p);
 
       // draw text with preloaded font family
       // specify font by 'weight, size, family'
@@ -202,7 +213,7 @@ class Scene4 extends THREE.Scene implements ISceneBase {
       this._context.drawImage(
         this._image1,
         w * 0.0,
-        h * 0.8
+        h * 0.3
       );
 
       // notify: the texture material is updated
