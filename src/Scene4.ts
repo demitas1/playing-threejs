@@ -57,8 +57,8 @@ class Scene4 extends THREE.Scene implements ISceneBase {
       1000
     );
     this._camera.position.x = 0.0;
-    this._camera.position.z = 4.0;
-    this._camera.position.y = 0.0;
+    this._camera.position.z = 2.0;
+    this._camera.position.y = 5.0;
   }
 
   initControls(domElement: HTMLElement) {
@@ -126,6 +126,8 @@ class Scene4 extends THREE.Scene implements ISceneBase {
     });
 
     // attach the gltf models to the scene
+    root.position.x = - 12.0;
+    root.position.y = - 20.0;
     this.add(root);
     console.log(root);
   }
@@ -172,14 +174,16 @@ class Scene4 extends THREE.Scene implements ISceneBase {
   updateScene() {
     // frame tick counter
     this._tick += 1;
-    const n_frames = 100;
-    if (this._tick >= n_frames) {
+    const nFrames = 1000;
+    if (this._tick >= nFrames) {
       this._tick = 0;
     }
 
     this._stats.update();
 
     // texture as canvas animation
+    const text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ac auctor augue mauris augue neque gravida in. Suscipit adipiscing bibendum est ultricies integer quis auctor elit sed. Lobortis scelerisque fermentum dui faucibus. Pulvinar proin gravida hendrerit lectus. Pellentesque massa placerat duis ultricies lacus sed turpis. Nisi porta lorem mollis aliquam ut. Ipsum faucibus vitae aliquet nec ullamcorper sit amet risus nullam. Vel orci porta non pulvinar neque laoreet. Dolor magna eget est lorem ipsum. Ullamcorper velit sed ullamcorper morbi.';
+
     if (this._context && this._material) {
       // Note:
       // canvas 2d has +Y down coordinate while blender UV has +Y up.
@@ -187,33 +191,72 @@ class Scene4 extends THREE.Scene implements ISceneBase {
 
       const w = this._canvas.width;
       const h = this._canvas.height;
-      const p = (this._tick % n_frames) / n_frames;
 
       // clear canvas by filled rectangle
       this._context.fillStyle = '#020208';
       this._context.fillRect(0, 0, w, h);
 
-      // fill rectangle test
-      this._context.fillStyle = '#404040';
-      this._context.fillRect(0, 0, w * p, h * p);
-
       // draw text with preloaded font family
       // specify font by 'weight, size, family'
-      // TODO: animation text
-      const fontSize = Math.floor(w * 0.1);
-      this._context.font = `400 ${fontSize}px Orbitron`;
+      const nLines = 40;
+      const fontSize = Math.floor(h / nLines);
+      const lineHeight = fontSize + 1;
+
+      const marginLeft = w * 0.05;
+      const marginTop = h * 0.1;
+      const maxLineWidth = w * 0.9;
+
+      this._context.font = `300 ${fontSize}px Orbitron`;
       this._context.fillStyle = '#407f40';
-      this._context.fillText(
-        'A quick brown fox.',
-        w * 0.0,
-        h * 0.1
-      );
+
+      // animation text
+      const nCharPerFrame = 2.0;
+      const nMaxChar = text.length;
+      const nDisplayText = Math.min(nMaxChar, Math.floor(this._tick * nCharPerFrame));
+
+      // split text into multiple lines
+      const textLine = new Array<string>();
+
+      let iStart = 0;
+      let iEnd = 0;
+      let iLine = 0;
+      let pxWidth = 0;
+      let endOfText = false;
+
+      while (iLine < nLines) {
+        do {
+          if (iEnd >= nDisplayText) {
+            endOfText = true;
+            break;
+          }
+          iEnd += 1;
+          pxWidth = this._context
+                        .measureText(text.slice(iStart, iEnd + 1))
+                        .width;
+        } while (pxWidth < maxLineWidth);
+
+        textLine.push(text.slice(iStart, iEnd));
+        if (endOfText) {
+          break;
+        }
+        iStart = iEnd;
+        iLine += 1;
+      }
+
+      // draw multiple lines
+      for (let n = 0; n < textLine.length; n++) {
+        this._context.fillText(
+          textLine[n],
+          marginLeft,
+          marginTop + lineHeight * n
+        );
+      }
 
       // draw image bitmap
       this._context.drawImage(
         this._image1,
-        w * 0.0,
-        h * 0.3
+        w * 0.05,
+        h * 0.4
       );
 
       // notify: the texture material is updated
@@ -221,11 +264,11 @@ class Scene4 extends THREE.Scene implements ISceneBase {
     }
   }
 
-  getScene() : THREE.Object3D {
+  getScene() {
     return this;
   }
 
-  getCamera() : THREE.Camera {
+  getCamera() {
     return this._camera;
   }
 
