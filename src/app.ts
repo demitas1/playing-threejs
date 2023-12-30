@@ -4,6 +4,7 @@ import { Scene1 } from './Scene1';
 import { Scene2 } from './Scene2';
 import { Scene3 } from './Scene3';
 import { Scene4 } from './Scene4';
+import { Scene5 } from './Scene5';
 
 
 export class App {
@@ -22,11 +23,14 @@ export class App {
     // Renderer
     this._renderer = new THREE.WebGLRenderer();
     this._renderer.setSize(window.innerWidth, window.innerHeight);
+
+    this._renderer.shadowMap.enabled = true;
+    this._renderer.shadowMap.type = THREE.BasicShadowMap;
+
     document.body.appendChild(this._renderer.domElement);
 
     // starting Scene
-    //this._scene = new Scene1(this._renderer.domElement);
-    this._scene = new Scene4(this._renderer.domElement);
+    this._scene = new Scene5(this._renderer.domElement);
 
     // window resize
     window.addEventListener(
