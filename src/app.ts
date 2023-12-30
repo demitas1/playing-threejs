@@ -7,6 +7,9 @@ import { Scene4 } from './Scene4';
 import { Scene5 } from './Scene5';
 
 
+const _fps = 60;
+
+
 export class App {
   _renderer: THREE.WebGLRenderer;
 
@@ -71,16 +74,24 @@ export class App {
     );
   }
 
+  // TODO: get timeDelta from previous rendering
   update() {
     // update current scene
     this._scene.updateScene();
 
     // render the scene animation
     this.render();
-    requestAnimationFrame(
+
+    // limit maximum FPS
+    setTimeout(
       () => {
-        this.update();
-      }
+        requestAnimationFrame(
+          () => {
+            this.update();
+          }
+        )
+      },
+      1000 / _fps
     );
 
     this._i += 1;

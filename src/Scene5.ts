@@ -26,10 +26,16 @@ class Scene5 extends THREE.Scene implements ISceneBase {
   _stats: Stats;
   _domUI: HTMLElement;
 
-  _light: THREE.DirectionalLight;
+  _ticker: number;
+  _Objects: Record<string, THREE.Object3D>;
+
 
   constructor(domElement: HTMLElement) {
     super();
+
+    this._ticker = 0;
+
+    this._Objects = {};
 
     this.initUI();
     this.initScene(domElement);
@@ -42,23 +48,29 @@ class Scene5 extends THREE.Scene implements ISceneBase {
     // axes helper
     this.add(new THREE.AxesHelper(5.0));
 
-    // add Light
-    this._light = new THREE.DirectionalLight(
+    // add Ambient light
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    this.add(ambientLight);
+
+    // add Directional light to cast shadow
+    const lightDirectional = new THREE.DirectionalLight(
       0xffffff,
       1.0);
-    this._light.position.set(2.0, 5.0, 1.0);
-    this._light.target.position.set(0.0, 0.0, 0.0);
-    this._light.castShadow = true;
-    this.add(this._light);
-    this._light.shadow.camera.top = 2;
-    this._light.shadow.camera.bottom = -2;
-    this._light.shadow.camera.left = -2;
-    this._light.shadow.camera.right = 2;
-    this._light.shadow.camera.near = 0.1;
-    this._light.shadow.camera.far = 20;
+    lightDirectional.position.set(2.0, 5.0, 1.0);
+    lightDirectional.target.position.set(0.0, 0.0, 0.0);
+    lightDirectional.castShadow = true;
+    this.add(lightDirectional);
+    // light frustum for cast shadow
+    lightDirectional.shadow.camera.top = 2;
+    lightDirectional.shadow.camera.bottom = -2;
+    lightDirectional.shadow.camera.left = -2;
+    lightDirectional.shadow.camera.right = 2;
+    lightDirectional.shadow.camera.near = 0.1;
+    lightDirectional.shadow.camera.far = 20;
 
     // camear helper for debug
-    const helper = new THREE.CameraHelper(this._light.shadow.camera);
+    const helper = new THREE.CameraHelper(
+      lightDirectional.shadow.camera);
     this.add(helper);
 
     // load texture
@@ -73,13 +85,14 @@ class Scene5 extends THREE.Scene implements ISceneBase {
 
     // create a simple qube.
     const geomCube = new THREE.BoxGeometry();
-    const material = new THREE.MeshPhongMaterial({
+    const matCube = new THREE.MeshPhongMaterial({
       map: textureColorGrid,
     });
 
-    const cube = new THREE.Mesh(geomCube, material);
+    const cube = new THREE.Mesh(geomCube, matCube);
     cube.castShadow = true;
     this.add(cube);
+    this._Objects["cube1"] = cube;
 
     // create ground
     const geomGround = new THREE.PlaneGeometry(10, 10);
@@ -154,7 +167,17 @@ class Scene5 extends THREE.Scene implements ISceneBase {
 
   updateScene() {
     this._stats.update();
-    this._light.target.updateMatrixWorld();
+
+    this._ticker += 1;
+    if (this._ticker > 1000000) {
+      this._ticker = 0;
+    }
+
+    const cube1 = this._Objects["cube1"];
+    if (cube1) {
+      cube1.rotateX(Math.PI / 60);
+    }
+
   }
 
   getScene() : THREE.Object3D {
