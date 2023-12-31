@@ -26,14 +26,11 @@ class Scene5 extends THREE.Scene implements ISceneBase {
   _stats: Stats;
   _domUI: HTMLElement;
 
-  _ticker: number;
   _Objects: Record<string, THREE.Object3D>;
 
 
   constructor(domElement: HTMLElement) {
     super();
-
-    this._ticker = 0;
 
     this._Objects = {};
 
@@ -165,19 +162,13 @@ class Scene5 extends THREE.Scene implements ISceneBase {
     this._camera.aspect = window.innerWidth / window.innerHeight;
   }
 
-  updateScene() {
+  updateScene(timeDelta: number) {
     this._stats.update();
-
-    this._ticker += 1;
-    if (this._ticker > 1000000) {
-      this._ticker = 0;
-    }
 
     const cube1 = this._Objects["cube1"];
     if (cube1) {
-      cube1.rotateX(Math.PI / 60);
+      cube1.rotateX(Math.PI * timeDelta);
     }
-
   }
 
   getScene() : THREE.Object3D {

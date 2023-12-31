@@ -8,20 +8,26 @@ import { Scene5 } from './Scene5';
 
 
 const _fps = 60;
+const _interval = 1.0 / _fps;
 
 
 export class App {
   _renderer: THREE.WebGLRenderer;
 
   _scene: ISceneBase;
-  _i: number;
+
+  _clock: THREE.Clock;  // clock for measuring delta
+  _ticker: number;      // counter of rendered frames
+  _timeDelta: number;   // delta time between frames
 
   constructor() {
     ;
   }
 
   async init(): Promise<void> {
-    this._i = 0;
+    this._clock = new THREE.Clock();
+    this._ticker = 0;
+    this._timeDelta = 0;
 
     // Renderer
     this._renderer = new THREE.WebGLRenderer();
@@ -67,6 +73,10 @@ export class App {
         } else if (ev.detail === '(end scene4)') {
           // change to new Scene1
           this._scene.disposeScene();
+          this._scene = new Scene5(this._renderer.domElement);
+        } else if (ev.detail === '(end scene5)') {
+          // change to new Scene1
+          this._scene.disposeScene();
           this._scene = new Scene1(this._renderer.domElement);
         }
       },
@@ -74,28 +84,30 @@ export class App {
     );
   }
 
-  // TODO: get timeDelta from previous rendering
   update() {
-    // update current scene
-    this._scene.updateScene();
+    // get time delta
+    this._timeDelta += this._clock.getDelta();
+
+    if (this._timeDelta > _interval) {
+      // get epoch for timestamp im milliseconds
+      // TODO: make timestamp
+      const timeNow = now();
+
+      // update current scene
+      this._scene.updateScene(this._timeDelta);
+      this._timeDelta %= _interval;
+      this._ticker += 1;
+
+      // render
+      this.render();
+    }
 
     // render the scene animation
-    this.render();
-
-    // limit maximum FPS
-    setTimeout(
+    requestAnimationFrame(
       () => {
-        requestAnimationFrame(
-          () => {
-            this.update();
-          }
-        )
-      },
-      1000 / _fps
+        this.update();
+      }
     );
-
-    this._i += 1;
-    //console.log(`frame ${this._i}`);
   }
 
   render() {
@@ -106,6 +118,21 @@ export class App {
     );
   }
 }
+
+
+//
+// get current time from epoch in milliseconds
+//
+function now() {
+  const isPerformanceSupported = (typeof performance === 'undefined');
+
+  if (isPerformanceSupported) {
+    return performance.now() + performance.timing.navigationStart;
+  } else {
+    return Date.now()
+  }
+}
+
 
 // initialize app and enter the main loop
 const app = new App();
