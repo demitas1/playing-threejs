@@ -9,7 +9,8 @@ import { ISceneBase } from './ISceneBase';
 import style from '../public/style.css';
 
 
-type prepareMesh = (mesh: THREE.Mesh, name: string) => void;
+type MeshRecord = Record<string, THREE.Mesh>;
+type prepareMesh = (record: MeshRecord) => void;
 
 
 // loader wrapper
@@ -37,7 +38,7 @@ class Scene5 extends THREE.Scene implements ISceneBase {
   _stats: Stats;
   _domUI: HTMLElement;
 
-  _Objects: Record<string, THREE.Object3D>;
+  _Objects: MeshRecord;
 
 
   constructor(domElement: HTMLElement) {
@@ -112,15 +113,22 @@ class Scene5 extends THREE.Scene implements ISceneBase {
     // load gltf for vehicle
     this.addMeshFromGLTF(
       'mesh/vehicle-test.glb',
-      (mesh, name) => {
-        // TODO: better operation with mesh dictionary
+      (record) => {
         // TODO: check parent-child relationship to set shadow
-        if (name === 'base') {
+        let mesh;
+        mesh = record['base'];
+        if (mesh) {
           mesh.castShadow = true;
           this.add(mesh);
+          this._Objects['vehicle'] = mesh;
         }
-        if (name === 'wheel') {
+
+        // 'wheel' is a descendant of 'base'
+        mesh = record['wheel'];
+        if (mesh) {
           mesh.castShadow = true;
+          this._Objects['wheel'] = mesh;
+          // do not add wheel to the scene directly
         }
       }
     );
@@ -128,8 +136,9 @@ class Scene5 extends THREE.Scene implements ISceneBase {
     // load gltf file for ground
     this.addMeshFromGLTF(
       'mesh/road-test.glb',
-      (mesh, name) => {
-        if (name === 'Cube') {
+      (record) => {
+        if (record['Cube']) {
+          const mesh = record['Cube']
           mesh.receiveShadow = true;
           this.add(mesh);
         }
@@ -144,6 +153,8 @@ class Scene5 extends THREE.Scene implements ISceneBase {
     const gltf: Record<string, any> = await loadGLTF(url);
     const root: THREE.Object3D = gltf.scene;
 
+    const meshRecord: MeshRecord = {};
+
     // find child mesh in the gltf
     root.traverse((child: any) => {
       const nodeType = (<THREE.Object3D>child).type;
@@ -154,10 +165,11 @@ class Scene5 extends THREE.Scene implements ISceneBase {
         const meshToAdd = <THREE.Mesh>child;
         console.log(meshToAdd);
 
-        // TODO: better operation with mesh dictionary
-        // prepare mesh attributes etc
+        meshRecord[nodeName] = meshToAdd;
+
+        // process mesh tree graph
         if (funcPrepareMesh) {
-          funcPrepareMesh(meshToAdd, nodeName);
+          funcPrepareMesh(meshRecord);
         }
 
       }
@@ -225,9 +237,14 @@ class Scene5 extends THREE.Scene implements ISceneBase {
   updateScene(timeDelta: number) {
     this._stats.update();
 
-    const cube1 = this._Objects["cube1"];
-    if (cube1) {
-      cube1.rotateX(Math.PI * timeDelta);
+    const vehicle1 = this._Objects["vehicle"];
+    if (vehicle1) {
+      vehicle1.rotation.y += (Math.PI * timeDelta * 0.1);
+    }
+
+    const wheel1 = this._Objects["wheel"];
+    if (wheel1) {
+      wheel1.rotation.y += - (Math.PI * timeDelta * 0.5);
     }
   }
 
