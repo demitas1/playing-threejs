@@ -67,6 +67,8 @@ class Scene5 extends THREE.Scene implements ISceneBase {
       1.0);
     lightDirectional.position.set(2.0, 5.0, 5.0);
     lightDirectional.target.position.set(0.0, 0.0, 0.0);
+    lightDirectional.shadow.mapSize.width = 4096;
+    lightDirectional.shadow.mapSize.height = 4096;
     lightDirectional.castShadow = true;
     this.add(lightDirectional);
     // light frustum for cast shadow
@@ -119,6 +121,7 @@ class Scene5 extends THREE.Scene implements ISceneBase {
         mesh = record['base'];
         if (mesh) {
           mesh.castShadow = true;
+          mesh.receiveShadow = true;
           this.add(mesh);
           this._Objects['vehicle'] = mesh;
         }
@@ -127,6 +130,7 @@ class Scene5 extends THREE.Scene implements ISceneBase {
         mesh = record['wheel'];
         if (mesh) {
           mesh.castShadow = true;
+          mesh.receiveShadow = true;
           this._Objects['wheel'] = mesh;
           // do not add wheel to the scene directly
         }

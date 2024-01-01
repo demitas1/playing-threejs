@@ -34,7 +34,10 @@ export class App {
     this._renderer.setSize(window.innerWidth, window.innerHeight);
 
     this._renderer.shadowMap.enabled = true;
-    this._renderer.shadowMap.type = THREE.BasicShadowMap;
+    //this._renderer.shadowMap.type = THREE.BasicShadowMap;
+    //this._renderer.shadowMap.type = THREE.VSMShadowMap
+    //this._renderer.shadowMap.type = THREE.PCFShadowMap
+    this._renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
     document.body.appendChild(this._renderer.domElement);
 
