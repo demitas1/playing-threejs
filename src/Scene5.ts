@@ -2,10 +2,14 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { GUI } from 'dat.gui';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 import { ISceneBase } from './ISceneBase';
 
 import style from '../public/style.css';
+
+
+type prepareMesh = (mesh: THREE.Mesh, name: string) => void;
 
 
 // loader wrapper
@@ -18,6 +22,13 @@ const loadTexture = (url: string) => {
       reject);
   });
 }
+
+
+const loadGLTF = (url: string) => {
+  return new Promise<Record<string, any>>(resolve => {
+    new GLTFLoader().load(url, resolve);
+  });
+};
 
 
 class Scene5 extends THREE.Scene implements ISceneBase {
@@ -53,7 +64,7 @@ class Scene5 extends THREE.Scene implements ISceneBase {
     const lightDirectional = new THREE.DirectionalLight(
       0xffffff,
       1.0);
-    lightDirectional.position.set(2.0, 5.0, 1.0);
+    lightDirectional.position.set(2.0, 5.0, 5.0);
     lightDirectional.target.position.set(0.0, 0.0, 0.0);
     lightDirectional.castShadow = true;
     this.add(lightDirectional);
@@ -86,11 +97,6 @@ class Scene5 extends THREE.Scene implements ISceneBase {
       map: textureColorGrid,
     });
 
-    const cube = new THREE.Mesh(geomCube, matCube);
-    cube.castShadow = true;
-    this.add(cube);
-    this._Objects["cube1"] = cube;
-
     // create ground
     const geomGround = new THREE.PlaneGeometry(10, 10);
     const planeGround = new THREE.Mesh(
@@ -102,6 +108,60 @@ class Scene5 extends THREE.Scene implements ISceneBase {
     planeGround.position.y = -1.0;
     planeGround.receiveShadow = true;
     this.add(planeGround);
+
+    // load gltf for vehicle
+    this.addMeshFromGLTF(
+      'mesh/vehicle-test.glb',
+      (mesh, name) => {
+        // TODO: better operation with mesh dictionary
+        // TODO: check parent-child relationship to set shadow
+        if (name === 'base') {
+          mesh.castShadow = true;
+          this.add(mesh);
+        }
+        if (name === 'wheel') {
+          mesh.castShadow = true;
+        }
+      }
+    );
+
+    // load gltf file for ground
+    this.addMeshFromGLTF(
+      'mesh/road-test.glb',
+      (mesh, name) => {
+        if (name === 'Cube') {
+          mesh.receiveShadow = true;
+          this.add(mesh);
+        }
+      }
+    );
+  }
+
+  async addMeshFromGLTF(
+    url: string,
+    funcPrepareMesh: prepareMesh
+  ) {
+    const gltf: Record<string, any> = await loadGLTF(url);
+    const root: THREE.Object3D = gltf.scene;
+
+    // find child mesh in the gltf
+    root.traverse((child: any) => {
+      const nodeType = (<THREE.Object3D>child).type;
+      const nodeName = (<THREE.Object3D>child).name;
+      console.log(`node: ${nodeType}: "${nodeName}"`);
+
+      if (nodeType === 'Mesh') {
+        const meshToAdd = <THREE.Mesh>child;
+        console.log(meshToAdd);
+
+        // TODO: better operation with mesh dictionary
+        // prepare mesh attributes etc
+        if (funcPrepareMesh) {
+          funcPrepareMesh(meshToAdd, nodeName);
+        }
+
+      }
+    });
   }
 
   initCamera() {
