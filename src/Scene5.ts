@@ -9,8 +9,7 @@ import { ISceneBase } from './ISceneBase';
 import style from '../public/style.css';
 
 
-type MeshRecord = Record<string, THREE.Mesh>;
-type prepareMesh = (record: MeshRecord) => void;
+type ObjectRecord = Record<string, THREE.Object3D>;
 
 
 // loader wrapper
@@ -38,7 +37,7 @@ class Scene5 extends THREE.Scene implements ISceneBase {
   _stats: Stats;
   _domUI: HTMLElement;
 
-  _Objects: MeshRecord;
+  _Objects: ObjectRecord;
 
 
   constructor(domElement: HTMLElement) {
@@ -67,10 +66,11 @@ class Scene5 extends THREE.Scene implements ISceneBase {
       1.0);
     lightDirectional.position.set(2.0, 5.0, 5.0);
     lightDirectional.target.position.set(0.0, 0.0, 0.0);
-    lightDirectional.shadow.mapSize.width = 4096;
-    lightDirectional.shadow.mapSize.height = 4096;
     lightDirectional.castShadow = true;
-    this.add(lightDirectional);
+    lightDirectional.shadow.mapSize.width = 512;
+    lightDirectional.shadow.mapSize.height = 512;
+    lightDirectional.shadow.radius = 5;
+    lightDirectional.shadow.blurSamples = 25;
     // light frustum for cast shadow
     lightDirectional.shadow.camera.top = 2;
     lightDirectional.shadow.camera.bottom = -2;
@@ -78,6 +78,7 @@ class Scene5 extends THREE.Scene implements ISceneBase {
     lightDirectional.shadow.camera.right = 2;
     lightDirectional.shadow.camera.near = 0.1;
     lightDirectional.shadow.camera.far = 20;
+    this.add(lightDirectional);
 
     // camear helper for debug
     const helper = new THREE.CameraHelper(
@@ -94,12 +95,6 @@ class Scene5 extends THREE.Scene implements ISceneBase {
     }
     //console.log(textureColorGrid);
 
-    // create a simple qube.
-    const geomCube = new THREE.BoxGeometry();
-    const matCube = new THREE.MeshPhongMaterial({
-      map: textureColorGrid,
-    });
-
     // create ground
     const geomGround = new THREE.PlaneGeometry(10, 10);
     const planeGround = new THREE.Mesh(
@@ -113,71 +108,51 @@ class Scene5 extends THREE.Scene implements ISceneBase {
     this.add(planeGround);
 
     // load gltf for vehicle
-    this.addMeshFromGLTF(
-      'mesh/vehicle-test.glb',
-      (record) => {
-        // TODO: check parent-child relationship to set shadow
-        let mesh;
-        mesh = record['base'];
-        if (mesh) {
-          mesh.castShadow = true;
-          mesh.receiveShadow = true;
-          this.add(mesh);
-          this._Objects['vehicle'] = mesh;
-        }
+    const gltfVehicle = await loadGLTF('mesh/vehicle-test.glb');
 
-        // 'wheel' is a descendant of 'base'
-        mesh = record['wheel'];
-        if (mesh) {
-          mesh.castShadow = true;
-          mesh.receiveShadow = true;
-          this._Objects['wheel'] = mesh;
-          // do not add wheel to the scene directly
-        }
+    gltfVehicle.scene.traverse((n: THREE.Object3D) => {
+      // load "base" mesh, and add "base" to the scene
+      if (n.name === 'base') {
+        this.add(n);
+        this._Objects['vehicle'] = n;
       }
-    );
 
-    // load gltf file for ground
-    this.addMeshFromGLTF(
-      'mesh/road-test.glb',
-      (record) => {
-        if (record['Cube']) {
-          const mesh = record['Cube']
-          mesh.receiveShadow = true;
-          this.add(mesh);
-        }
-      }
-    );
-  }
-
-  async addMeshFromGLTF(
-    url: string,
-    funcPrepareMesh: prepareMesh
-  ) {
-    const gltf: Record<string, any> = await loadGLTF(url);
-    const root: THREE.Object3D = gltf.scene;
-
-    const meshRecord: MeshRecord = {};
-
-    // find child mesh in the gltf
-    root.traverse((child: any) => {
-      const nodeType = (<THREE.Object3D>child).type;
-      const nodeName = (<THREE.Object3D>child).name;
-      console.log(`node: ${nodeType}: "${nodeName}"`);
-
-      if (nodeType === 'Mesh') {
-        const meshToAdd = <THREE.Mesh>child;
-        console.log(meshToAdd);
-
-        meshRecord[nodeName] = meshToAdd;
-
-        // process mesh tree graph
-        if (funcPrepareMesh) {
-          funcPrepareMesh(meshRecord);
-        }
-
+      // load "wheel" mesh
+      if (n.name === 'wheel') {
+        this._Objects['wheel'] = n;
+        // do not add wheel to the scene directly
       }
     });
+
+    // traverse graph to set cast/receive shadow
+    if (this._Objects['vehicle']) {
+      this._Objects['vehicle'].traverse((n) => {
+        if (n.type === 'Mesh') {
+          (<THREE.Mesh>n).castShadow = true;
+          (<THREE.Mesh>n).receiveShadow = true;
+        }
+      });
+    }
+
+    // load gltf file for ground
+    const gltfRoad = await loadGLTF('mesh/road_straight_1p1v1v1p.glb');
+    gltfRoad.scene.traverse((n: THREE.Object3D) => {
+      // load "Cube" group
+      // add "Cube" group to the scene
+      if (n.name === 'Cube') {
+        this.add(n);
+        this._Objects['road'] = n;
+      }
+    });
+
+    // traverse graph to set receive shadow
+    if (this._Objects['road']) {
+      this._Objects['road'].traverse((n) => {
+        if (n.type === 'Mesh') {
+          (<THREE.Mesh>n).receiveShadow = true;
+        }
+      });
+    }
   }
 
   initCamera() {
