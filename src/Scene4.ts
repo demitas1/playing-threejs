@@ -171,7 +171,7 @@ class Scene4 extends THREE.Scene implements ISceneBase {
     this._camera.updateProjectionMatrix();
   }
 
-  updateScene() {
+  updateScene(timeDelta: number) {
     // frame tick counter
     this._tick += 1;
     const nFrames = 1000;

@@ -198,7 +198,7 @@ class Scene1 extends THREE.Scene implements ISceneBase {
     this._camera.updateProjectionMatrix();
   }
 
-  updateScene() {
+  updateScene(timeDelta: number) {
     this._stats.update();
   }
 

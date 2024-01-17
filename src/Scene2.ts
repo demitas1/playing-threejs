@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 import { ISceneBase } from './ISceneBase';
 
@@ -149,7 +149,7 @@ class Scene2 extends THREE.Scene implements ISceneBase {
     this._camera.updateProjectionMatrix();
   }
 
-  updateScene() {
+  updateScene(timeDelta: number) {
     this._stats.update();
   }
 
