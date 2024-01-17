@@ -11,6 +11,12 @@ const _fps = 60;
 const _interval = 1.0 / _fps;
 
 
+const isPerformanceSupported = (typeof performance === 'undefined');
+if (! isPerformanceSupported) {
+  console.log('Warning: Performance is not supported.');
+}
+
+
 export class App {
   _renderer: THREE.WebGLRenderer;
 
@@ -127,8 +133,6 @@ export class App {
 // get current time from epoch in milliseconds
 //
 function now() {
-  const isPerformanceSupported = (typeof performance === 'undefined');
-
   if (isPerformanceSupported) {
     return performance.now() + performance.timing.navigationStart;
   } else {
