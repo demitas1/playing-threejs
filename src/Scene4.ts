@@ -134,7 +134,7 @@ class Scene4 extends THREE.Scene implements ISceneBase {
 
   initUI() {
     const _style = style;  // reference to css to access hashed class names
-    console.log(`style: ${_style.hello}`);
+    console.log(`style: ${_style}`);
 
     // Stats
     this._stats = new Stats();

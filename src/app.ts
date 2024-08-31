@@ -5,6 +5,9 @@ import { Scene2 } from './Scene2';
 import { Scene3 } from './Scene3';
 import { Scene4 } from './Scene4';
 import { Scene5 } from './Scene5';
+import { Scene6 } from './Scene6';
+import { FwidthTestScene } from './FwidthTestScene';
+
 
 
 const _fps = 60;
@@ -48,7 +51,8 @@ export class App {
     document.body.appendChild(this._renderer.domElement);
 
     // starting Scene
-    this._scene = new Scene5(this._renderer.domElement);
+    //this._scene = new FwidthTestScene(this._renderer.domElement);
+    this._scene = new Scene6(this._renderer.domElement);
 
     // window resize
     window.addEventListener(
