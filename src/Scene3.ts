@@ -8,15 +8,23 @@ import { ISceneBase } from './ISceneBase';
 import style from '../public/style.css';
 
 
-const vshader = /* glsl */`
+const vshader = `
 void main() {
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position * 0.5, 1.0);
 }
 `
 
 const fshader = `
-void main() {
-  gl_FragColor = vec4(0.1, 0.2, 0.3, 1.0);
+uniform vec3 u_color;
+uniform vec2 u_mouse;
+uniform vec2 u_resolution;
+uniform float u_time;
+
+void main (void)
+{
+  vec3 color = vec3(u_mouse.x/u_resolution.x, 0.0, u_mouse.y/u_resolution.y);
+  //color = vec3((sin(u_time)+1.0)/2.0, 0.0, (cos(u_time)+1.0)/2.0);
+  gl_FragColor = vec4(color, 1.0);
 }
 `
 
@@ -25,6 +33,14 @@ class Scene3 extends THREE.Scene implements ISceneBase {
   _controls: OrbitControls;
   _stats: Stats;
   _domUI: HTMLElement;
+
+  // for shader
+  _uniforms: {
+    u_color: { value: THREE.Color },
+    u_time: { value: number },
+    u_mouse: { value: { x: number, y: number, } },
+    u_resolution: { value: { x: number, y: number, } },
+  };
 
   constructor(domElement: HTMLElement) {
     super();
@@ -38,7 +54,16 @@ class Scene3 extends THREE.Scene implements ISceneBase {
     this.initControls(domElement);
 
     const geometry = new THREE.PlaneGeometry(2, 2);
+
+    this._uniforms = {
+      u_color: { value: new THREE.Color(0xff0000) },
+      u_time: { value: 0.0 },
+      u_mouse: { value:{ x:0.0, y:0.0 }},
+      u_resolution: { value:{ x:0, y:0 }}
+    }
+
     const material = new THREE.ShaderMaterial({
+      uniforms: this._uniforms,
       vertexShader: vshader,
       fragmentShader: fshader,
     });
@@ -112,6 +137,16 @@ class Scene3 extends THREE.Scene implements ISceneBase {
     this._camera.top = height;
     this._camera.bottom = - height;
     this._camera.updateProjectionMatrix();
+
+    // pass window size to shader
+    this._uniforms.u_resolution.value.x = window.innerWidth;
+    this._uniforms.u_resolution.value.y = window.innerHeight;
+  }
+
+  onMouseMove(x: number, y: number) {
+    // pass mouse position to shader
+    this._uniforms.u_mouse.value.x = x;
+    this._uniforms.u_mouse.value.y = y;
   }
 
   updateScene(timeDelta: number) {

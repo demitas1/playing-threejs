@@ -4,9 +4,10 @@
   "description": "",
   "private": true,
   "scripts": {
-    "start": "webpack serve --open-app-name 'firefox'",
-    "start2": "webpack serve --open-app-name 'brave-browser'",
-    "start3": "webpack serve --open-app-name 'google-chrome'",
+    "start": "webpack serve --open-app-name 'brave-browser'",
+    "firefox": "webpack serve --open-app-name 'firefox'",
+    "brave": "webpack serve --open-app-name 'brave-browser'",
+    "chrome": "webpack serve --open-app-name 'google-chrome'",
     "build": "webpack"
   },
   "keywords": [],

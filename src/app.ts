@@ -52,7 +52,7 @@ export class App {
 
     // starting Scene
     //this._scene = new FwidthTestScene(this._renderer.domElement);
-    this._scene = new Scene6(this._renderer.domElement);
+    this._scene = new Scene3(this._renderer.domElement);
 
     // window resize
     window.addEventListener(
@@ -61,6 +61,29 @@ export class App {
         this._scene.onResize();
         this._renderer.setSize(window.innerWidth, window.innerHeight);
         this.render();
+      },
+      false
+    );
+
+    // touch & mouse event
+    if ('ontouchstart' in window){
+      console.log('touch is available');
+      // TODO: take care of 'touchmove' event
+      window.addEventListener(
+        'touchmove',
+        () => {},
+        false
+      );
+    } else {
+      console.log('touch is not available');
+    }
+
+    window.addEventListener(
+      'mousemove',
+      (ev: MouseEvent) => {
+        // TODO: take care of 'mousemove' event
+        //console.log(`mouse move: ${ev.clientX}, ${ev.clientY}`);
+        this._scene.onMouseMove(ev.clientX, ev.clientY);
       },
       false
     );
