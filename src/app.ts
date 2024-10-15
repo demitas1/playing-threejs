@@ -81,9 +81,8 @@ export class App {
     window.addEventListener(
       'mousemove',
       (ev: MouseEvent) => {
-        // TODO: take care of 'mousemove' event
-        //console.log(`mouse move: ${ev.clientX}, ${ev.clientY}`);
-        this._scene.onMouseMove(ev.clientX, ev.clientY);
+        // NOTE: scene object may not have onMouseMove method
+        this._scene?.onMouseMove?.(ev.clientX, ev.clientY);
       },
       false
     );
