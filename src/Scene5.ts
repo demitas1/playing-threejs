@@ -185,9 +185,10 @@ class Scene5 extends THREE.Scene implements ISceneBase {
     document.body.appendChild(this._stats.dom);
 
     // html load external html file
-    const r = await fetch('data/hud.html');
-    const htmlHUD = await r.text();
-
+    const htmlHUD = `
+      <h1>Scene 5</h1>
+      <div>Load mesh from glTF file</div>
+    `;
     this._domUI = document.createElement('div');
     document.body.appendChild(this._domUI);
     this._domUI.classList.add('myHUD');
@@ -211,6 +212,7 @@ class Scene5 extends THREE.Scene implements ISceneBase {
 
   onResize() {
     this._camera.aspect = window.innerWidth / window.innerHeight;
+    this._camera.updateProjectionMatrix();
   }
 
   updateScene(timeDelta: number) {
